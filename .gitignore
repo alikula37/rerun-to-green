@@ -10,3 +10,6 @@ Thumbs.db
 # Secrets — never commit tokens
 *.token
 .env
+
+# Regenerable derived data (python3 src/analyze.py rebuilds it)
+data/processed/episodes.csv
