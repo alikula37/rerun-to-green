@@ -1,0 +1,11 @@
+{
+  "sampled_rerun_runs": 400,
+  "fetch_failed": 0,
+  "failure_first": 83,
+  "failure_first_final_green": 63,
+  "failure_first_green_rate_pct": 75.9,
+  "action_required_first": 300,
+  "action_required_first_final_green": 202,
+  "note": "Attempt-level 'press rerun' recovery: among runs GitHub recorded as re-run at least once (run_attempt>=2) whose first attempt genuinely failed, what fraction finished green.",
+  "generated_by": "src/validate_attempts.py"
+}

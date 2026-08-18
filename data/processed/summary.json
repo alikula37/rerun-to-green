@@ -1,0 +1,13 @@
+{
+  "repos": 32,
+  "episodes_total": 105421,
+  "episodes_started_red": 10047,
+  "episodes_rerun_on_same_sha": 1785,
+  "rerun_to_green_count": 498,
+  "rerun_to_green_rate_pct": 27.9,
+  "median_time_to_green_min": 3.8,
+  "p90_time_to_green_min": 171.0,
+  "note": "Entry-level same-commit recovery. The press-rerun (attempt-level) number is produced by src/validate_attempts.py -> data/processed/attempt_validation.json.",
+  "fetched_at": "2026-08-18T23:43:23.500299+00:00",
+  "generated_by": "src/analyze.py"
+}

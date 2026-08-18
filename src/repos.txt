@@ -1,0 +1,36 @@
+# Public repositories sampled for rerun-to-green.
+# Selection: active OSS, uses GitHub Actions, spread across languages and sizes.
+# Empty lines and lines starting with # are ignored.
+
+apache/airflow
+microsoft/playwright
+sveltejs/svelte
+vercel/next.js
+denoland/deno
+pandas-dev/pandas
+numpy/numpy
+rust-lang/rust
+golang/go
+microsoft/TypeScript
+angular/angular
+pnpm/pnpm
+kubernetes/kubernetes
+grafana/grafana
+home-assistant/core
+spring-projects/spring-boot
+pytorch/pytorch
+godotengine/godot
+rails/rails
+vuejs/core
+vitejs/vite
+webpack/webpack
+eslint/eslint
+n8n-io/n8n
+ansible/ansible
+hashicorp/terraform
+prometheus/prometheus
+etcd-io/etcd
+grpc/grpc
+jquery/jquery
+encode/django-rest-framework
+psf/requests

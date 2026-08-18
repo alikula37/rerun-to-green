@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rerun-to-green — Does a bare rerun turn CI green?</title>
+<style>
+  :root{
+    --red:#e5484d; --green:#30a46c; --bg:#0d1117; --card:#161b22; --text:#e6edf3;
+    --muted:#8b949e; --line:#30363d; --accent:#58a6ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 20px 80px}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+  .lang{background:var(--card);border:1px solid var(--line);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:14px}
+  .hero h1{font-size:34px;letter-spacing:-0.5px}
+  .claim{font-size:20px;margin:10px 0 6px;font-weight:600}
+  .sub{color:var(--muted)}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+  .badge{background:var(--card);border:1px solid var(--line);padding:4px 10px;border-radius:999px;font-size:12.5px;color:var(--muted)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:24px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .card .n{font-size:30px;font-weight:700}
+  .card .l{color:var(--muted);font-size:13px;margin-top:4px}
+  .card.red .n{color:var(--red)}
+  .card.green .n{color:var(--green)}
+  h2{font-size:22px;margin:40px 0 12px}
+  p{color:var(--text);margin-bottom:10px}
+  .muted{color:var(--muted)}
+  .bar{height:44px;border-radius:10px;overflow:hidden;display:flex;border:1px solid var(--line);margin:14px 0}
+  .bar .redpart{background:var(--red);height:100%}
+  .bar .greenpart{background:var(--green);height:100%}
+  .barlabel{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:6px}
+  .flow{margin:18px 0;max-width:100%}
+  .steps{list-style:none;counter-reset:s}
+  .steps li{counter-increment:s;padding:10px 0 10px 44px;position:relative;border-bottom:1px solid var(--line)}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:10px;width:28px;height:28px;border-radius:50%;background:var(--card);border:1px solid var(--accent);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:14px 0}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600}
+  td.n,th.n{text-align:right}
+  .note{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:16px;margin:24px 0}
+  .honesty{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--red);border-radius:10px;padding:16px;margin:24px 0}
+  code{background:var(--card);border:1px solid var(--line);padding:1px 6px;border-radius:6px;font-size:13px}
+  pre{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;overflow-x:auto;font-size:13px;margin:12px 0}
+  footer{margin-top:48px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+  a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div style="font-weight:700">🔄 rerun-to-green</div>
+    <button class="lang" onclick="toggleLang()">TR</button>
+  </div>
+
+  <div class="hero">
+    <h1 data-i18n="title">rerun-to-green</h1>
+    <div class="claim" data-i18n="claim">How many failed CI runs go green on a bare rerun — no code change?</div>
+    <div class="sub" data-i18n="sub">Measured on <b>143,061 public GitHub Actions runs</b> from 32 open-source repositories (2026-08-19).</div>
+    <div class="badges">
+      <span class="badge">🧪 Real numbers</span>
+      <span class="badge">📐 Measured: 2026-08-19</span>
+      <span class="badge">🔄 Rerun only</span>
+      <span class="badge">⚖️ Honest limits</span>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card red"><div class="n" id="n-red">10,047</div><div class="l" data-i18n="c1">failed-run episodes</div></div>
+    <div class="card"><div class="n" id="n-rerun">1,785</div><div class="l" data-i18n="c2">re-run on the same commit</div></div>
+    <div class="card green"><div class="n" id="n-recovered">498</div><div class="l" data-i18n="c3">turned green, zero code change</div></div>
+    <div class="card green"><div class="n" id="n-rate">~28%</div><div class="l" data-i18n="c4">same-commit recovery (entry-level)</div></div>
+  </div>
+
+  <h2 data-i18n="h1">The question</h2>
+  <p data-i18n="q1">Every developer knows the reflex: <i>“CI is red. My diff looks fine. Let me just rerun it.”</i></p>
+  <p data-i18n="q2">How often does that actually work? We measured it on public data — no estimates.</p>
+
+  <h2 data-i18n="h2">The number</h2>
+  <div class="bar">
+    <div class="redpart" id="barred" style="width:72%"></div>
+    <div class="greenpart" id="bargreen" style="width:28%"></div>
+  </div>
+  <div class="barlabel"><span data-i18n="bar1">All failed runs (red)</span><span data-i18n="bar2" id="barlabel2">~28% turned green on a same-commit rerun</span></div>
+  <p data-i18n="p1">And the press-rerun case, validated on a random sample: <b>~75%</b> of runs that were re-run on a failed first attempt finished green.</p>
+
+  <img class="flow" id="flowimg" src="assets/flow.png" alt="rerun-to-green flow" style="display:none">
+  <svg class="flow" id="flowsvg" viewBox="0 0 640 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="flow">
+    <rect x="10" y="40" width="150" height="50" rx="10" fill="#161b22" stroke="#8b949e"/>
+    <text x="85" y="70" fill="#e6edf3" font-size="14" text-anchor="middle" font-family="Segoe UI,Arial">patch</text>
+    <line x1="160" y1="65" x2="210" y2="65" stroke="#8b949e" stroke-width="2"/>
+    <rect x="210" y="40" width="150" height="50" rx="10" fill="#e5484d"/>
+    <text x="285" y="70" fill="#fff" font-size="14" text-anchor="middle" font-family="Segoe UI,Arial">CI 🔴 failed</text>
+    <line x1="360" y1="65" x2="410" y2="65" stroke="#8b949e" stroke-width="2"/>
+    <rect x="410" y="40" width="150" height="50" rx="10" fill="#161b22" stroke="#8b949e"/>
+    <text x="485" y="70" fill="#e6edf3" font-size="14" text-anchor="middle" font-family="Segoe UI,Arial">rerun, no code</text>
+    <line x1="560" y1="50" x2="590" y2="50" stroke="#30a46c" stroke-width="2"/>
+    <rect x="590" y="20" width="45" height="40" rx="10" fill="#30a46c"/>
+    <text x="612" y="45" fill="#fff" font-size="20" text-anchor="middle">✓</text>
+    <text x="612" y="105" fill="#30a46c" font-size="12" text-anchor="middle">~75%</text>
+    <line x1="560" y1="80" x2="590" y2="80" stroke="#e5484d" stroke-width="2"/>
+    <rect x="590" y="65" width="45" height="40" rx="10" fill="#e5484d"/>
+    <text x="612" y="90" fill="#fff" font-size="20" text-anchor="middle">✗</text>
+    <text x="612" y="130" fill="#e5484d" font-size="12" text-anchor="middle">~25%</text>
+  </svg>
+
+  <h2 data-i18n="h3">How we measured</h2>
+  <ol class="steps">
+    <li data-i18n="s1">Downloaded workflow-run metadata for 32 public repos via the GitHub API.</li>
+    <li data-i18n="s2">Grouped runs by (repository, workflow, commit SHA).</li>
+    <li data-i18n="s3">Found episodes that started red (failure / timed_out).</li>
+    <li data-i18n="s4">Checked whether a later run of the exact same commit finished green.</li>
+    <li data-i18n="s5">Validated the press-rerun case on a random sample (attempt #1 fetched and confirmed as a genuine failure).</li>
+  </ol>
+  <p class="muted" data-i18n="nopriv">No source code. No logs. No user data. Public metadata only.</p>
+
+  <h2 data-i18n="h4">Results</h2>
+  <table>
+    <tr><th data-i18n="t1">Metric</th><th class="n" data-i18n="t2">Value</th></tr>
+    <tr><td data-i18n="r1">Failed runs re-run on the same commit</td><td class="n">~18%</td></tr>
+    <tr><td data-i18n="r2">…of which turned green (entry-level)</td><td class="n">~28%</td></tr>
+    <tr><td data-i18n="r3">…of which turned green when <i>you press rerun</i> (attempt-level)</td><td class="n">~75%</td></tr>
+    <tr><td data-i18n="r4">Median time-to-green (recovered)</td><td class="n">~4 min</td></tr>
+    <tr><td data-i18n="r5">P90 time-to-green (recovered)</td><td class="n">~2.9 h</td></tr>
+  </table>
+
+  <div class="honesty">
+    <b data-i18n="h5">What this does and does not mean</b>
+    <ul style="margin:10px 0 0 18px;color:var(--text)">
+      <li data-i18n="l1"><b>Green after rerun ≠ code is correct.</b> It means the failure wasn't caused by your commit in that run.</li>
+      <li data-i18n="l2"><b>This is not “AI causes this”.</b> We don't know which runs were AI-written and we don't claim to.</li>
+      <li data-i18n="l3"><b>Selection bias:</b> developers re-run runs they suspect are flaky, so ~75% is conditional on choosing to rerun.</li>
+      <li data-i18n="l4"><b>Snapshot:</b> 2026, up to 90 days, 32 curated repos; heavy repos capped at 6,000 most recent runs.</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <b data-i18n="n1">The point</b>
+    <p data-i18n="n2" style="margin:8px 0 0">AI coding tools are measured by how fast a patch is written. But a patch isn't done when it's written — it's done when CI is green.</p>
+    <p style="margin:8px 0 0"><b>AI writes the patch. CI decides whether it's usable.</b></p>
+  </div>
+
+  <h2 data-i18n="h6">Reproduce</h2>
+  <pre>GH_TOKEN=&lt;token&gt; WINDOW_DAYS=90 python3 src/fetch_runs.py
+python3 src/analyze.py
+python3 src/validate_attempts.py</pre>
+
+  <footer>
+    <a href="https://github.com/alikula37/rerun-to-green">github.com/alikula37/rerun-to-green</a>
+    &nbsp;·&nbsp; <span data-i18n="f1">Data: <code>data/raw/</code> · Results: <code>data/processed/</code> · MIT</span>
+  </footer>
+
+</div>
+
+<script>
+  const I18N = {
+    title:{en:"rerun-to-green",tr:"rerun-to-green"},
+    claim:{en:"How many failed CI runs go green on a bare rerun — no code change?",tr:"Kaç başarısız CI koşusu sırf yeniden çalıştırınca yeşile dönüyor — kod değişmeden?"},
+    sub:{en:"Measured on <b>143,061 public GitHub Actions runs</b> from 32 open-source repositories (2026-08-19).",tr:"32 açık kaynak repodaki <b>143.061 public GitHub Actions koşusu</b> üzerinde ölçüldü (2026-08-19)."},
+    c1:{en:"failed-run episodes",tr:"başarısız koşu bölümü"},
+    c2:{en:"re-run on the same commit",tr:"aynı commit'te yeniden çalıştırıldı"},
+    c3:{en:"turned green, zero code change",tr:"yeşile döndü, sıfır kod değişikliği"},
+    c4:{en:"same-commit recovery (entry-level)",tr:"aynı-commit recovery (entry bazlı)"},
+    h1:{en:"The question",tr:"Soru"},
+    q1:{en:"Every developer knows the reflex: <i>“CI is red. My diff looks fine. Let me just rerun it.”</i>",tr:"Her geliştirici refleksi bilir: <i>“CI kırmızı. Diff'im iyi görünüyor. Hadi bir daha basayım.”</i>"},
+    q2:{en:"How often does that actually work? We measured it on public data — no estimates.",tr:"Bu gerçekte ne kadar işe yarıyor? Public veriyle ölçtük — tahmin yok."},
+    h2:{en:"The number",tr:"Sayı"},
+    bar1:{en:"All failed runs (red)",tr:"Tüm başarısız koşular (kırmızı)"},
+    bar2:{en:"~28% turned green on a same-commit rerun",tr:"~%28 aynı-commit rerun'da yeşile döndü"},
+    p1:{en:"And the press-rerun case, validated on a random sample: <b>~75%</b> of runs that were re-run on a failed first attempt finished green.",tr:"Rerun'a basma durumu ise rastgele örneklemle doğrulandı: başarısız ilk denemede yeniden çalıştırılan koşuların <b>~%75'i</b> yeşile döndü."},
+    h3:{en:"How we measured",tr:"Nasıl ölçtük"},
+    s1:{en:"Downloaded workflow-run metadata for 32 public repos via the GitHub API.",tr:"GitHub API ile 32 public reponun workflow-run metadata'sını indirdik."},
+    s2:{en:"Grouped runs by (repository, workflow, commit SHA).",tr:"Koşuları (repo, workflow, commit SHA) ile grupladık."},
+    s3:{en:"Found episodes that started red (failure / timed_out).",tr:"Kırmızı (failure / timed_out) başlayan bölümleri bulduk."},
+    s4:{en:"Checked whether a later run of the exact same commit finished green.",tr:"Aynı commit'in sonraki bir koşusunun yeşile dönüp dönmediğini kontrol ettik."},
+    s5:{en:"Validated the press-rerun case on a random sample (attempt #1 fetched and confirmed as a genuine failure).",tr:"Rerun'a basma durumunu rastgele örneklemle doğruladık (attempt #1 çekilip gerçekten başarısız olduğu teyit edildi)."},
+    nopriv:{en:"No source code. No logs. No user data. Public metadata only.",tr:"Kaynak kod yok. Log yok. Kullanıcı verisi yok. Sadece public metadata."},
+    h4:{en:"Results",tr:"Sonuçlar"},
+    t1:{en:"Metric",tr:"Metrik"},
+    t2:{en:"Value",tr:"Değer"},
+    r1:{en:"Failed runs re-run on the same commit",tr:"Aynı commit'te yeniden çalıştırılan başarısız koşu"},
+    r2:{en:"…of which turned green (entry-level)",tr:"…bunlardan yeşile dönen (entry bazlı)"},
+    r3:{en:"…of which turned green when <i>you press rerun</i> (attempt-level)",tr:"…<i>rerun'a basınca</i> yeşile dönen (attempt bazlı)"},
+    r4:{en:"Median time-to-green (recovered)",tr:"Yeşile dönme süresi medyan (iyileşenler)"},
+    r5:{en:"P90 time-to-green (recovered)",tr:"Yeşile dönme süresi P90 (iyileşenler)"},
+    h5:{en:"What this does and does not mean",tr:"Bu ne demek, ne demek değil"},
+    l1:{en:"<b>Green after rerun ≠ code is correct.</b> It means the failure wasn't caused by your commit in that run.",tr:"<b>Rerun sonrası yeşil ≠ kod doğru.</b> Failure'ın o koşuda commit'inden kaynaklanmadığı anlamına gelir."},
+    l2:{en:"<b>This is not “AI causes this”.</b> We don't know which runs were AI-written and we don't claim to.",tr:"<b>Bu “AI bunun sebebi” demek değil.</b> Hangi koşuların AI ile yazıldığını bilmiyoruz, iddia da etmiyoruz."},
+    l3:{en:"<b>Selection bias:</b> developers re-run runs they suspect are flaky, so ~75% is conditional on choosing to rerun.",tr:"<b>Seçim yanlılığı:</b> geliştiriciler flaky olduğunu düşündükleri koşuları yeniden çalıştırır; ~%75 rerun yapmayı seçme koşuluna bağlı."},
+    l4:{en:"<b>Snapshot:</b> 2026, up to 90 days, 32 curated repos; heavy repos capped at 6,000 most recent runs.",tr:"<b>Anlık görüntü:</b> 2026, 90 güne kadar, 32 seçili repo; yoğun repolarda en yeni 6.000 koşu limiti."},
+    n1:{en:"The point",tr:"Mesele"},
+    n2:{en:"AI coding tools are measured by how fast a patch is written. But a patch isn't done when it's written — it's done when CI is green.",tr:"AI coding araçları patch'in ne kadar hızlı yazıldığıyla ölçülüyor. Ama patch yazıldığında bitmiş olmaz — CI yeşil olduğunda biter."},
+    h6:{en:"Reproduce",tr:"Yeniden üret"},
+    f1:{en:"Data: <code>data/raw/</code> · Results: <code>data/processed/</code> · MIT",tr:"Veri: <code>data/raw/</code> · Sonuçlar: <code>data/processed/</code> · MIT"},
+    bar1b:{en:"All failed runs (red)",tr:"Tüm başarısız koşular (kırmızı)"}
+  };
+
+  function applyLang(l){
+    document.documentElement.lang = l;
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      const k=el.getAttribute("data-i18n");
+      if(I18N[k] && I18N[k][l] !== undefined) el.innerHTML=I18N[k][l];
+    });
+    document.querySelector(".lang").textContent = l==="en"?"TR":"EN";
+  }
+  function toggleLang(){
+    const l = (localStorage.getItem("r2g-lang")||"en")==="en"?"tr":"en";
+    localStorage.setItem("r2g-lang",l); applyLang(l);
+  }
+  const startLang = localStorage.getItem("r2g-lang")||"en";
+  applyLang(startLang);
+</script>
+</body>
+</html>

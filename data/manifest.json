@@ -1,0 +1,135 @@
+{
+  "window_days": 90,
+  "fetched_at": "2026-08-18T23:03:41.421656+00:00",
+  "repos": [
+    {
+      "repo": "apache/airflow",
+      "runs": 6000
+    },
+    {
+      "repo": "microsoft/playwright",
+      "runs": 6000
+    },
+    {
+      "repo": "sveltejs/svelte",
+      "runs": 3771
+    },
+    {
+      "repo": "vercel/next.js",
+      "runs": 6000
+    },
+    {
+      "repo": "denoland/deno",
+      "runs": 6000
+    },
+    {
+      "repo": "pandas-dev/pandas",
+      "runs": 6000
+    },
+    {
+      "repo": "numpy/numpy",
+      "runs": 6000
+    },
+    {
+      "repo": "rust-lang/rust",
+      "runs": 6000
+    },
+    {
+      "repo": "golang/go",
+      "runs": 435
+    },
+    {
+      "repo": "microsoft/TypeScript",
+      "runs": 540
+    },
+    {
+      "repo": "angular/angular",
+      "runs": 6000
+    },
+    {
+      "repo": "pnpm/pnpm",
+      "runs": 6000
+    },
+    {
+      "repo": "kubernetes/kubernetes",
+      "runs": 50
+    },
+    {
+      "repo": "grafana/grafana",
+      "runs": 6000
+    },
+    {
+      "repo": "home-assistant/core",
+      "runs": 6000
+    },
+    {
+      "repo": "spring-projects/spring-boot",
+      "runs": 2870
+    },
+    {
+      "repo": "pytorch/pytorch",
+      "runs": 6000
+    },
+    {
+      "repo": "godotengine/godot",
+      "runs": 5760
+    },
+    {
+      "repo": "rails/rails",
+      "runs": 6000
+    },
+    {
+      "repo": "vuejs/core",
+      "runs": 5752
+    },
+    {
+      "repo": "vitejs/vite",
+      "runs": 6000
+    },
+    {
+      "repo": "webpack/webpack",
+      "runs": 6000
+    },
+    {
+      "repo": "eslint/eslint",
+      "runs": 3581
+    },
+    {
+      "repo": "n8n-io/n8n",
+      "runs": 6000
+    },
+    {
+      "repo": "ansible/ansible",
+      "runs": 5
+    },
+    {
+      "repo": "hashicorp/terraform",
+      "runs": 6000
+    },
+    {
+      "repo": "prometheus/prometheus",
+      "runs": 6000
+    },
+    {
+      "repo": "etcd-io/etcd",
+      "runs": 5940
+    },
+    {
+      "repo": "grpc/grpc",
+      "runs": 6000
+    },
+    {
+      "repo": "jquery/jquery",
+      "runs": 15
+    },
+    {
+      "repo": "encode/django-rest-framework",
+      "runs": 319
+    },
+    {
+      "repo": "psf/requests",
+      "runs": 23
+    }
+  ],
+  "rate_limit_remaining": null
+}
