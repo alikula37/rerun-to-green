@@ -1,5 +1,7 @@
 # 🔄 rerun-to-green
 
+[🇬🇧 English](README.md) · **Türkçe**
+
 **Kaç başarısız CI koşusu sırf yeniden çalıştırınca yeşile dönüyor — kod değişmeden?**
 
 32 açık kaynak repodaki **143.061 public GitHub Actions koşusu** üzerinde ölçüldü.

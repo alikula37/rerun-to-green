@@ -14,6 +14,9 @@
   .wrap{max-width:880px;margin:0 auto;padding:24px 20px 80px}
   .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
   .lang{background:var(--card);border:1px solid var(--line);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:14px}
+  .lang .lg{opacity:.45;padding:0 3px}
+  .lang .lg.active{opacity:1;font-weight:700;color:var(--accent)}
+  .lang .sep{opacity:.35;padding:0 1px}
   .hero h1{font-size:34px;letter-spacing:-0.5px}
   .claim{font-size:20px;margin:10px 0 6px;font-weight:600}
   .sub{color:var(--muted)}
@@ -53,7 +56,7 @@
 
   <div class="top">
     <div style="font-weight:700">🔄 rerun-to-green</div>
-    <button class="lang" onclick="toggleLang()">TR</button>
+    <button class="lang" onclick="toggleLang()" title="Switch language / Dil değiştir"><span class="lg" data-lg="en">EN</span><span class="sep">·</span><span class="lg" data-lg="tr">TR</span></button>
   </div>
 
   <div class="hero">
@@ -90,13 +93,13 @@
   <img class="flow" id="flowimg" src="assets/flow.png" alt="rerun-to-green flow" style="display:none">
   <svg class="flow" id="flowsvg" viewBox="0 0 640 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="flow">
     <rect x="10" y="40" width="150" height="50" rx="10" fill="#161b22" stroke="#8b949e"/>
-    <text x="85" y="70" fill="#e6edf3" font-size="14" text-anchor="middle" font-family="Segoe UI,Arial">patch</text>
+    <text x="85" y="70" fill="#e6edf3" font-size="14" text-anchor="middle" font-family="Segoe UI,Arial" data-i18n="s-patch">patch</text>
     <line x1="160" y1="65" x2="210" y2="65" stroke="#8b949e" stroke-width="2"/>
     <rect x="210" y="40" width="150" height="50" rx="10" fill="#e5484d"/>
-    <text x="285" y="70" fill="#fff" font-size="14" text-anchor="middle" font-family="Segoe UI,Arial">CI 🔴 failed</text>
+    <text x="285" y="70" fill="#fff" font-size="14" text-anchor="middle" font-family="Segoe UI,Arial" data-i18n="s-ci">CI 🔴 failed</text>
     <line x1="360" y1="65" x2="410" y2="65" stroke="#8b949e" stroke-width="2"/>
     <rect x="410" y="40" width="150" height="50" rx="10" fill="#161b22" stroke="#8b949e"/>
-    <text x="485" y="70" fill="#e6edf3" font-size="14" text-anchor="middle" font-family="Segoe UI,Arial">rerun, no code</text>
+    <text x="485" y="70" fill="#e6edf3" font-size="14" text-anchor="middle" font-family="Segoe UI,Arial" data-i18n="s-rerun">rerun, no code</text>
     <line x1="560" y1="50" x2="590" y2="50" stroke="#30a46c" stroke-width="2"/>
     <rect x="590" y="20" width="45" height="40" rx="10" fill="#30a46c"/>
     <text x="612" y="45" fill="#fff" font-size="20" text-anchor="middle">✓</text>
@@ -195,16 +198,24 @@ python3 src/validate_attempts.py</pre>
     n2:{en:"AI coding tools are measured by how fast a patch is written. But a patch isn't done when it's written — it's done when CI is green.",tr:"AI coding araçları patch'in ne kadar hızlı yazıldığıyla ölçülüyor. Ama patch yazıldığında bitmiş olmaz — CI yeşil olduğunda biter."},
     h6:{en:"Reproduce",tr:"Yeniden üret"},
     f1:{en:"Data: <code>data/raw/</code> · Results: <code>data/processed/</code> · MIT",tr:"Veri: <code>data/raw/</code> · Sonuçlar: <code>data/processed/</code> · MIT"},
-    bar1b:{en:"All failed runs (red)",tr:"Tüm başarısız koşular (kırmızı)"}
+    bar1b:{en:"All failed runs (red)",tr:"Tüm başarısız koşular (kırmızı)"},
+    "s-patch":{en:"patch",tr:"patch"},
+    "s-ci":{en:"CI failed",tr:"CI kırmızı"},
+    "s-rerun":{en:"rerun, no code",tr:"rerun, kod yok"}
   };
 
   function applyLang(l){
     document.documentElement.lang = l;
     document.querySelectorAll("[data-i18n]").forEach(el=>{
       const k=el.getAttribute("data-i18n");
-      if(I18N[k] && I18N[k][l] !== undefined) el.innerHTML=I18N[k][l];
+      if(I18N[k] && I18N[k][l] !== undefined){
+        if(el instanceof SVGElement){ el.textContent = I18N[k][l]; }
+        else { el.innerHTML = I18N[k][l]; }
+      }
     });
-    document.querySelector(".lang").textContent = l==="en"?"TR":"EN";
+    document.querySelectorAll(".lang .lg").forEach(sp=>{
+      sp.classList.toggle("active", sp.getAttribute("data-lg")===l);
+    });
   }
   function toggleLang(){
     const l = (localStorage.getItem("r2g-lang")||"en")==="en"?"tr":"en";

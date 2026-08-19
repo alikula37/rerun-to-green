@@ -1,5 +1,7 @@
 # 🔄 rerun-to-green
 
+**English** · [🇹🇷 Türkçe](README.tr.md)
+
 **How many failed CI runs go green on a bare rerun — no code change?**
 
 Measured on **143,061 public GitHub Actions runs** from 32 open-source repositories.
