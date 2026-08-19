@@ -31,8 +31,7 @@ jobs:
       - name: Regenerate results from raw data and compare
         run: python3 src/check_fresh.py
 
-      - name: Validate attempt-level recovery (requires a token secret)
-        if: ${{ secrets.GH_TOKEN != '' }}
+      - name: Validate attempt-level recovery (skips if GH_TOKEN unset)
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: python3 src/validate_attempts.py

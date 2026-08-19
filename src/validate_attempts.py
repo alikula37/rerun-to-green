@@ -7,7 +7,7 @@ attempt #1 to learn its conclusion, then measure:
   * how much of "rerun" activity is actually approval-gated (action_required).
 Uses a small thread pool to absorb slow/transient DNS failures.
 """
-import gzip, json, glob, os, random, urllib.request
+import gzip, json, glob, os, random, sys, urllib.request
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -48,6 +48,10 @@ def fetch_attempt1(repo, rid):
 
 
 def main():
+    if not token:
+        print("SKIP: GH_TOKEN not set; attempt-level validation requires a GitHub token.")
+        print("Add a GH_TOKEN secret to the repository to enable this step.")
+        return
     cands = load_candidates()
     print(f"total runs with attempt>=2: {len(cands)}", flush=True)
     random.seed(42)
